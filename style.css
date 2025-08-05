@@ -144,3 +144,73 @@ th {
 .premiada-13 { background-color: rgba(255, 215, 0, 0.3); }
 .premiada-14 { background-color: rgba(255, 165, 0, 0.4); }
 .premiada-15 { background-color: rgba(255, 69, 0, 0.5); }
+
+/* Adicionar este trecho ao final do seu arquivo style.css existente */
+
+/* --- Estilos para a animação de confetes --- */
+#confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Permite clicar através do container de confetes */
+    z-index: 1000; /* Garante que os confetes fiquem sobre tudo */
+}
+
+.confetti {
+    position: absolute;
+    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+    animation: fall 4s linear infinite, explode 0.5s ease-out forwards;
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--rotation));
+    width: var(--size);
+    height: var(--size);
+    left: var(--left);
+    top: var(--top);
+}
+
+.confetti.launch {
+    animation: fall 4s linear infinite, explode 0.5s ease-out forwards;
+}
+
+@keyframes fall {
+    0% { transform: translate(-50%, -50%) rotate(var(--rotation)) translateY(-100vh); opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(var(--rotation)) translateY(100vh); opacity: 0; }
+}
+
+@keyframes explode {
+    0% { transform: translate(-50%, -50%) rotate(var(--rotation)) scale(0); opacity: 0; }
+    50% { transform: translate(-50%, -50%) rotate(var(--rotation)) scale(1.2); opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(var(--rotation)) scale(1); opacity: 0; }
+}
+
+.confetti.color-1 { background: radial-gradient(circle, #FFD700 0%, rgba(255,215,0,0) 70%); } /* Amarelo */
+.confetti.color-2 { background: radial-gradient(circle, #7F3992 0%, rgba(127,57,146,0) 70%); } /* Roxo */
+.confetti.color-3 { background: radial-gradient(circle, #00BFFF 0%, rgba(0,191,255,0) 70%); } /* Azul claro */
+.confetti.color-4 { background: radial-gradient(circle, #32CD32 0%, rgba(50,205,50,0) 70%); } /* Verde limão */
+
+.win-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(44, 0, 79, 0.95); /* Fundo roxo semi-transparente */
+    color: #FFD700; /* Texto dourado */
+    padding: 30px;
+    border-radius: 15px;
+    border: 3px solid #7F3992;
+    font-size: 1.8em;
+    font-weight: bold;
+    text-align: center;
+    z-index: 1001; /* Garante que a mensagem fique acima dos confetes */
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+    animation: fadeInOut 6s ease-out forwards;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    80% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+}
