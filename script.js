@@ -7,41 +7,40 @@ const PREMIOS_FIXOS = {
 
 // Tabela de multiplicação de prêmios para apostas de 16 dezenas
 const MULTIPLICADOR_16_DEZENAS = {
-    11: { 11: 5 },
-    12: { 11: 12, 12: 4 },
-    13: { 12: 13, 13: 3 },
-    14: { 13: 14, 14: 2 },
-    15: { 14: 15, 15: 1 }
+    11: { 11: 5 }, // Acertando 11, ganha 5x o prêmio de 11
+    12: { 11: 12, 12: 4 }, // Acertando 12, ganha 12x o de 11 e 4x o de 12
+    13: { 12: 13, 13: 3 }, // Acertando 13, ganha 13x o de 12 e 3x o de 13
+    14: { 13: 14, 14: 2 }, // Acertando 14, ganha 14x o de 13 e 2x o de 14
+    15: { 14: 15, 15: 1 }  // Acertando 15, ganha 15x o de 14 e 1x o de 15
 };
 
 // Roda quando a página termina de carregar
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('resultadoContainer');
-    // Cria os 15 campos de input
+    // Cria os 15 campos de input dinamicamente
     for (let i = 0; i < 15; i++) {
         const input = document.createElement('input');
-        input.type = 'tel'; // 'tel' ajuda a abrir o teclado numérico em celulares
-        input.classList.add('dezena-sorteada-input');
+        input.type = 'tel';
+        input.className = 'dezena-sorteada-input';
         input.maxLength = 2;
         input.placeholder = '00';
+        input.setAttribute('aria-label', `Dezena ${i + 1}`);
         container.appendChild(input);
     }
     
-    // Adiciona a lógica de auto-pulo
+    // Adiciona a lógica de auto-pulo para os campos
     const inputs = document.querySelectorAll('.dezena-sorteada-input');
     inputs.forEach((input, index) => {
         input.addEventListener('input', () => {
-            // Se o campo tiver 2 dígitos e não for o último, foca no próximo
-            if (input.value.length === 2 && index < inputs.length - 1) {
+            if (input.value.length === input.maxLength && index < inputs.length - 1) {
                 inputs[index + 1].focus();
             }
         });
     });
 });
 
-
 function conferirJogos() {
-    // ---- NOVO: Lendo os números dos 15 campos ----
+    // Lê os números dos 15 campos do sorteio
     const inputsSorteados = document.querySelectorAll('.dezena-sorteada-input');
     const dezenasSorteadas = new Set();
     
@@ -53,10 +52,9 @@ function conferirJogos() {
     });
 
     if (dezenasSorteadas.size !== 15) {
-        alert("Por favor, preencha todos os 15 campos do sorteio com números válidos e sem repetição.");
+        alert("Por favor, preencha todos os 15 campos do sorteio com números válidos (de 01 a 25) e sem repetição.");
         return;
     }
-    // ---- FIM DA NOVA LÓGICA ----
 
     const apostasInput = document.getElementById('minhasApostas').value;
     const linhasApostas = apostasInput.trim().split('\n').filter(linha => linha.trim() !== '');
@@ -71,13 +69,15 @@ function conferirJogos() {
     tabelaResultados.innerHTML = '';
     resumoPremiosDiv.innerHTML = '';
 
+    // Contadores para o resumo final
     let resumoContadores = { 11: 0, 12: 0, 13: 0, 14: 0, 15: 0, totalJogosPremiados: 0 };
     let premioTotalFixo = 0;
 
+    // Itera sobre cada aposta colada
     linhasApostas.forEach((linha, index) => {
         const dezenasAposta = linha.trim().split(/[\s,]+/).map(Number);
         if (dezenasAposta.some(isNaN) || (dezenasAposta.length !== 15 && dezenasAposta.length !== 16)) {
-            return;
+            return; // Pula linhas mal formatadas
         }
 
         let acertos = 0;
@@ -94,7 +94,7 @@ function conferirJogos() {
 
         if (acertos >= 11) {
             resumoContadores.totalJogosPremiados++;
-            if (dezenasAposta.length === 16) {
+            if (dezenasAposta.length === 16) { // Lógica para aposta de 16 dezenas
                 const premiosMultiplos = MULTIPLICADOR_16_DEZENAS[acertos];
                 for (const faixa in premiosMultiplos) {
                     const quantidade = premiosMultiplos[faixa];
@@ -103,14 +103,14 @@ function conferirJogos() {
                         premioTotalFixo += quantidade * PREMIOS_FIXOS[faixa];
                     }
                 }
-            } else {
+            } else { // Lógica para aposta simples de 15 dezenas
                 resumoContadores[acertos]++;
                 if (PREMIOS_FIXOS[acertos]) {
                     premioTotalFixo += PREMIOS_FIXOS[acertos];
                 }
             }
         }
-
+        
         const newRow = tabelaResultados.insertRow();
         let classePremiada = '';
         let emoji = '';
@@ -125,18 +125,21 @@ function conferirJogos() {
         
         let acertosTexto = `<b>${acertos}</b>`;
         if (dezenasAposta.length === 16) {
-             acertosTexto += ` <i>(de 16)</i>`;
+             acertosTexto += ` <i style="font-size:0.8em;">(de 16)</i>`;
         }
 
         newRow.innerHTML = `
             <td>${index + 1}</td>
-            <td style="text-align: left;">${dezenasHtml}</td>
+            <td style="text-align: left; padding-left: 10px;">${dezenasHtml}</td>
             <td>${acertosTexto} ${emoji}</td>
         `;
     });
 
+    // Gera o HTML do resumo final
     let resumoHtml = '<h2>Resumo da Premiação</h2>';
-    if (premioTotalFixo > 0 || resumoContadores[14] > 0 || resumoContadores[15] > 0) {
+    const totalDePremios = Object.values(resumoContadores).slice(0, 5).reduce((a, b) => a + b, 0);
+
+    if (totalDePremios > 0) {
         resumoHtml += `<p>Você teve <strong>${resumoContadores.totalJogosPremiados}</strong> de <strong>${linhasApostas.length}</strong> apostas premiadas.</p><hr>`;
         resumoHtml += `
             <p><strong>${resumoContadores[11]}</strong> prêmio(s) de 11 acertos: <strong>R$ ${(resumoContadores[11] * PREMIOS_FIXOS[11]).toFixed(2).replace('.',',')}</strong></p>
@@ -148,7 +151,7 @@ function conferirJogos() {
             <h3>Total em Prêmios Fixos (11, 12 e 13 acertos): R$ ${premioTotalFixo.toFixed(2).replace('.',',')}</h3>
         `;
     } else {
-        resumoHtml += `<p>Nenhuma aposta foi premiada. Foram conferidos ${linhasApostas.length} jogos. Mais sorte na próxima!</p>`;
+        resumoHtml += `<p>Nenhuma aposta foi premiada. Foram conferidos ${linhasApostas.length} jogos. Mais sorte na próxima vez!</p>`;
     }
 
     resumoPremiosDiv.innerHTML = resumoHtml;
