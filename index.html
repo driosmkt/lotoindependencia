@@ -2,35 +2,37 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <!-- Meta tag essencial para responsividade mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conferidor Lotofácil da Independência</title>
+    <title>Conferidor Lotofácil</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Conferidor Lotofácil da Independência</h1>
+        <h1>Conferidor Lotofácil</h1>
 
         <div class="input-section">
             <h2>Indique as 15 Dezenas Sorteados</h2>
             <p>Preencha os campos abaixo. O cursor pulará para o próximo automaticamente.</p>
             <div id="resultadoContainer" class="resultado-container-inputs">
-                <!-- 15 campos para as dezenas sorteadas serão gerados aqui pelo JavaScript -->
+                <!-- Campos gerados pelo JavaScript -->
             </div>
         </div>
 
         <div class="input-section">
             <h2>Cole Suas Apostas Abaixo</h2>
             <p>Cole uma aposta por linha, com as dezenas separadas por espaço ou vírgula.</p>
-            <textarea id="minhasApostas" rows="12" placeholder="Exemplo de aposta com 15 dezenas:&#10;01 02 03 04 05 06 07 08 09 10 11 12 13 14 15&#10;&#10;Exemplo de aposta com 16 dezenas:&#10;01 02 03 05 06 09 11 12 13 15 17 19 21 22 24 25"></textarea>
+            <textarea id="minhasApostas" rows="12" placeholder="Ex: 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15"></textarea>
         </div>
 
         <button onclick="conferirJogos()">Conferir Apostas</button>
 
         <div id="resumoPremios" class="resumo-container">
-            <!-- O resumo dos prêmios aparecerá aqui -->
+            <!-- O resumo dos prêmios em formato de tabela aparecerá aqui -->
         </div>
 
-        <div class="resultados-container">
+        <!-- Container para a tabela de resultados, permite rolagem horizontal em telas pequenas -->
+        <div class="tabela-resultados-wrapper">
             <table id="tabelaResultados">
                 <thead>
                     <tr>
@@ -46,7 +48,6 @@
         </div>
     </div>
 
-    <!-- Novo: Elemento para a animação de confetes -->
     <div id="confetti-container"></div>
 
     <script src="script.js"></script>
