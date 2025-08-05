@@ -14,6 +14,58 @@ const MULTIPLICADOR_16_DEZENAS = {
     15: { 14: 15, 15: 1 }  // Acertando 15, ganha 15x o de 14 e 1x o de 15
 };
 
+// Função para criar um único confete
+function criarConfete(x, y, container, cor, tamanho, rotacao) {
+    const confete = document.createElement('div');
+    confete.className = 'confetti';
+    confete.style.left = `${x}px`;
+    confete.style.top = `${y}px`;
+    confete.style.setProperty('--size', `${tamanho}px`);
+    confete.style.setProperty('--rotation', `${rotacao}deg`);
+    confete.classList.add(cor);
+    container.appendChild(confete);
+
+    // Remove o confete do DOM após o fim da animação
+    setTimeout(() => {
+        confete.remove();
+    }, 4000); // A animação dura 4 segundos
+}
+
+// Função para criar múltiplos confetes
+function gerarConfetes(quantidade, container) {
+    for (let i = 0; i < quantidade; i++) {
+        const x = Math.random() * window.innerWidth;
+        const y = Math.random() * window.innerHeight;
+        const tamanho = Math.random() * 15 + 10; // Tamanho entre 10px e 25px
+        const rotacao = Math.random() * 360;
+        const cor = `color-${Math.floor(Math.random() * 4) + 1}`; // Escolhe uma cor aleatória
+        criarConfete(x, y, container, cor, tamanho, rotacao);
+    }
+}
+
+// Função para mostrar a mensagem de vitória
+function mostrarMensagemVitoria(pontuacao, ehDezesseisNumeros) {
+    const winMessageContainer = document.getElementById('confetti-container');
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('win-message');
+    
+    let mensagem = '🎉 PARABÉNS! 🎉<br>';
+    mensagem += `Você acertou ${pontuacao} dezenas em uma das suas apostas!`;
+    if (ehDezesseisNumeros) {
+        mensagem += ' (Aposta de 16 números)';
+    }
+    mensagem += '<br><br>';
+    mensagem += 'Busque informações nos canais oficiais da Loteria para saber o valor exato do prêmio e como resgatá-lo!';
+    
+    messageDiv.innerHTML = mensagem;
+    winMessageContainer.appendChild(messageDiv);
+
+    // Remove a mensagem após alguns segundos
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 6000); // A animação dura 6 segundos
+}
+
 // Roda quando a página termina de carregar
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('resultadoContainer');
@@ -69,9 +121,9 @@ function conferirJogos() {
     tabelaResultados.innerHTML = '';
     resumoPremiosDiv.innerHTML = '';
 
-    // Contadores para o resumo final
     let resumoContadores = { 11: 0, 12: 0, 13: 0, 14: 0, 15: 0, totalJogosPremiados: 0 };
     let premioTotalFixo = 0;
+    let houvePremioMaximo = false; // Flag para indicar se houve prêmio máximo
 
     // Itera sobre cada aposta colada
     linhasApostas.forEach((linha, index) => {
@@ -94,19 +146,32 @@ function conferirJogos() {
 
         if (acertos >= 11) {
             resumoContadores.totalJogosPremiados++;
-            if (dezenasAposta.length === 16) { // Lógica para aposta de 16 dezenas
-                const premiosMultiplos = MULTIPLICADOR_16_DEZENAS[acertos];
-                for (const faixa in premiosMultiplos) {
-                    const quantidade = premiosMultiplos[faixa];
-                    resumoContadores[faixa] += quantidade;
-                    if (PREMIOS_FIXOS[faixa]) {
-                        premioTotalFixo += quantidade * PREMIOS_FIXOS[faixa];
-                    }
+            const ehDezesseisNumeros = dezenasAposta.length === 16;
+
+            if (acertos === 15) { // Prêmio máximo!
+                houvePremioMaximo = true;
+                // Para o prêmio máximo, apenas contamos e mostramos a informação
+                // Não calculamos prêmios fixos, pois o valor é variável e alto
+                if (ehDezesseisNumeros) {
+                    resumoContadores[15] += 1; // Conta como um jogo de 15 acertos (desdobrado)
+                } else {
+                    resumoContadores[15]++;
                 }
-            } else { // Lógica para aposta simples de 15 dezenas
-                resumoContadores[acertos]++;
-                if (PREMIOS_FIXOS[acertos]) {
-                    premioTotalFixo += PREMIOS_FIXOS[acertos];
+            } else if (acertos >= 11) { // Prêmios menores
+                if (ehDezesseisNumeros) {
+                    const premiosMultiplos = MULTIPLICADOR_16_DEZENAS[acertos];
+                    for (const faixa in premiosMultiplos) {
+                        const quantidade = premiosMultiplos[faixa];
+                        resumoContadores[faixa] += quantidade;
+                        if (PREMIOS_FIXOS[faixa]) {
+                            premioTotalFixo += quantidade * PREMIOS_FIXOS[faixa];
+                        }
+                    }
+                } else { // Aposta simples de 15 dezenas
+                    resumoContadores[acertos]++;
+                    if (PREMIOS_FIXOS[acertos]) {
+                        premioTotalFixo += PREMIOS_FIXOS[acertos];
+                    }
                 }
             }
         }
@@ -137,19 +202,37 @@ function conferirJogos() {
 
     // Gera o HTML do resumo final
     let resumoHtml = '<h2>Resumo da Premiação</h2>';
-    const totalDePremios = Object.values(resumoContadores).slice(0, 5).reduce((a, b) => a + b, 0);
+    const totalDePremiosContados = Object.values(resumoContadores).slice(0, 5).reduce((a, b) => a + b, 0);
 
-    if (totalDePremios > 0) {
+    if (totalDePremiosContados > 0) {
         resumoHtml += `<p>Você teve <strong>${resumoContadores.totalJogosPremiados}</strong> de <strong>${linhasApostas.length}</strong> apostas premiadas.</p><hr>`;
-        resumoHtml += `
-            <p><strong>${resumoContadores[11]}</strong> prêmio(s) de 11 acertos: <strong>R$ ${(resumoContadores[11] * PREMIOS_FIXOS[11]).toFixed(2).replace('.',',')}</strong></p>
-            <p><strong>${resumoContadores[12]}</strong> prêmio(s) de 12 acertos: <strong>R$ ${(resumoContadores[12] * PREMIOS_FIXOS[12]).toFixed(2).replace('.',',')}</strong></p>
-            <p><strong>${resumoContadores[13]}</strong> prêmio(s) de 13 acertos 💰: <strong>R$ ${(resumoContadores[13] * PREMIOS_FIXOS[13]).toFixed(2).replace('.',',')}</strong></p>
-            <p><strong>${resumoContadores[14]}</strong> prêmio(s) de 14 acertos (Prêmio Variável) 🏆</p>
-            <p><strong>${resumoContadores[15]}</strong> prêmio(s) de 15 acertos (Prêmio Principal) 🎉</p>
-            <hr>
-            <h3>Total em Prêmios Fixos (11, 12 e 13 acertos): R$ ${premioTotalFixo.toFixed(2).replace('.',',')}</h3>
-        `;
+        
+        if (resumoContadores[15] > 0) {
+            resumoHtml += `<p style="color: #FFD700; font-size: 1.2em;"><strong>${resumoContadores[15]}</strong> aposta(s) com 15 acertos! PARABÉNS! 🎉 Busque informações oficiais para o valor exato e resgate seu prêmio!</p><hr>`;
+            // Chama a função para gerar confetes e a mensagem de vitória quando houver 15 acertos
+            const confettiContainer = document.getElementById('confetti-container');
+            gerarConfetes(100, confettiContainer); // Cria 100 confetes
+            // Encontra qual foi a aposta de 15 acertos para passar os detalhes
+            linhasApostas.forEach((linha, index) => {
+                const dezenasAposta = linha.trim().split(/[\s,]+/).map(Number);
+                let acertos = 0;
+                dezenasAposta.forEach(dezena => {
+                    if (dezenasSorteadas.has(dezena)) {
+                        acertos++;
+                    }
+                });
+                if (acertos === 15) {
+                    mostrarMensagemVitoria(15, dezenasAposta.length === 16);
+                }
+            });
+        }
+
+        resumoHtml += `<p><strong>${resumoContadores[11]}</strong> prêmio(s) de 11 acertos: <strong>R$ ${(resumoContadores[11] * PREMIOS_FIXOS[11]).toFixed(2).replace('.',',')}</strong></p>`;
+        resumoHtml += `<p><strong>${resumoContadores[12]}</strong> prêmio(s) de 12 acertos: <strong>R$ ${(resumoContadores[12] * PREMIOS_FIXOS[12]).toFixed(2).replace('.',',')}</strong></p>`;
+        resumoHtml += `<p><strong>${resumoContadores[13]}</strong> prêmio(s) de 13 acertos 💰: <strong>R$ ${(resumoContadores[13] * PREMIOS_FIXOS[13]).toFixed(2).replace('.',',')}</strong></p>`;
+        resumoHtml += `<p><strong>${resumoContadores[14]}</strong> prêmio(s) de 14 acertos (Prêmio Variável) 🏆</p>`;
+        
+        resumoHtml += `<hr><h3>Total em Prêmios Fixos (11, 12 e 13 acertos): R$ ${premioTotalFixo.toFixed(2).replace('.',',')}</h3>`;
     } else {
         resumoHtml += `<p>Nenhuma aposta foi premiada. Foram conferidos ${linhasApostas.length} jogos. Mais sorte na próxima vez!</p>`;
     }
