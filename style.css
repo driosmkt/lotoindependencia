@@ -18,218 +18,138 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
-h1, h2 {
-    text-align: center;
-    color: #FFD700;
-}
-
-p {
-    text-align: center;
-    font-size: 0.9em;
-    color: #c7c7c7;
-}
-
-.input-section {
-    margin-bottom: 20px;
-}
+h1, h2 { text-align: center; color: #FFD700; }
+p { text-align: center; font-size: 0.9em; color: #c7c7c7; }
+.input-section { margin-bottom: 20px; }
 
 textarea {
-    width: 100%;
-    padding: 12px;
-    border-radius: 5px;
-    border: 1px solid #7F3992;
-    background-color: #3a2d5f;
-    color: #fff;
-    font-size: 1em;
-    box-sizing: border-box;
-    resize: vertical;
+    width: 100%; padding: 12px; border-radius: 5px; border: 1px solid #7F3992;
+    background-color: #3a2d5f; color: #fff; font-size: 1em; box-sizing: border-box; resize: vertical;
 }
 
 button {
-    display: block;
-    width: 100%;
-    padding: 15px;
-    background-color: #FFD700;
-    color: #201942;
-    border: none;
-    border-radius: 5px;
-    font-size: 1.2em;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: background-color 0.3s;
+    display: block; width: 100%; padding: 15px; background-color: #FFD700;
+    color: #201942; border: none; border-radius: 5px; font-size: 1.2em;
+    font-weight: bold; cursor: pointer; margin-top: 10px; transition: background-color 0.3s;
 }
-
-button:hover {
-    background-color: #f0c400;
-}
+button:hover { background-color: #f0c400; }
 
 .resumo-container {
-    margin-top: 30px;
-    padding: 15px;
-    background-color: #3a2d5f;
-    border-radius: 8px;
-    text-align: center;
+    margin-top: 30px; padding: 15px; background-color: #3a2d5f; border-radius: 8px; text-align: center;
 }
 
 .tabela-resultados-wrapper {
-    margin-top: 20px;
-    overflow-x: auto; /* Permite rolagem horizontal em telas pequenas */
-    padding-bottom: 5px;
+    margin-top: 20px; overflow-x: auto; padding-bottom: 5px;
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 600px; /* Largura mínima para evitar que a tabela quebre em telas pequenas */
+    width: 100%; border-collapse: collapse; min-width: 600px;
 }
 
 th, td {
-    border: 1px solid #7F3992;
-    padding: 10px;
-    text-align: center;
-    vertical-align: middle;
+    border: 1px solid #7F3992; padding: 12px; text-align: center; vertical-align: middle;
 }
+th { background-color: #7F3992; color: #fff; }
 
-th {
-    background-color: #7F3992;
-    color: #fff;
-}
-
+/* --- NOVO: Centralização dos números nas bolinhas --- */
 .dezena-numero {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    line-height: 30px;
-    border-radius: 50%;
-    margin: 2px;
-    background-color: #3a2d5f;
-    font-weight: bold;
+    display: inline-flex; /* Usar flexbox para alinhamento perfeito */
+    align-items: center;
+    justify-content: center;
+    width: 30px; height: 30px; line-height: 30px; border-radius: 50%;
+    margin: 2px; background-color: #4a3d7f; font-weight: bold;
 }
-
-.dezena-acertada {
-    background-color: #FFD700;
-    color: #201942;
-}
+.dezena-acertada { background-color: #FFD700; color: #201942; }
 
 .resultado-container-inputs {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 15px;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 15px;
 }
 
 .dezena-sorteada-input {
-    width: 45px;
-    height: 45px;
-    font-size: 1.2em;
-    text-align: center;
-    font-weight: bold;
-    border-radius: 8px;
-    border: 2px solid #7F3992;
-    background-color: #3a2d5f;
-    color: #fff;
-    padding: 0;
-    box-sizing: border-box;
+    width: 45px; height: 45px; font-size: 1.2em; text-align: center; font-weight: bold;
+    border-radius: 8px; border: 2px solid #7F3992; background-color: #3a2d5f;
+    color: #fff; padding: 0; box-sizing: border-box;
 }
+.dezena-sorteada-input:focus { outline: none; border-color: #FFD700; box-shadow: 0 0 10px #FFD700; }
 
-.dezena-sorteada-input:focus {
-    outline: none;
-    border-color: #FFD700;
-    box-shadow: 0 0 10px #FFD700;
-}
-
-/* Destaques para linhas premiadas */
 .premiada-11 { background-color: rgba(0, 150, 255, 0.2); }
 .premiada-12 { background-color: rgba(0, 200, 150, 0.25); }
 .premiada-13 { background-color: rgba(255, 215, 0, 0.3); }
-.premiada-14 { background-color: rgba(255, 165, 0, 0.4); }
-.premiada-15 { background-color: rgba(255, 69, 0, 0.5); }
 
-/* --- NOVO: Animação para a aposta de prêmio máximo --- */
-.premiada-maxima {
-    animation: glow-animation 1.5s infinite alternate;
+/* --- NOVO: Destaque visual melhorado para 14 e 15 acertos --- */
+.premiada-14, .premiada-15 {
     position: relative;
-    z-index: 10;
+    overflow: hidden; /* Garante que a animação não vaze */
+}
+.premiada-14::before, .premiada-15::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(
+        transparent,
+        rgba(255, 215, 0, 0.6), /* Amarelo para 14 acertos */
+        transparent 30%
+    );
+    animation: spin 4s linear infinite;
+}
+.premiada-15::before {
+    background: conic-gradient(
+        transparent,
+        rgba(255, 69, 0, 0.7), /* Laranja/Vermelho para 15 acertos */
+        transparent 30%
+    );
+}
+@keyframes spin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-@keyframes glow-animation {
-    from {
-        box-shadow: 0 0 5px #FFD700, 0 0 10px #FFD700, 0 0 15px #FFD700;
-    }
-    to {
-        box-shadow: 0 0 15px #FF4500, 0 0 25px #FF4500, 0 0 35px #FF4500;
-    }
-}
-
-/* --- NOVO: Estilo para a Tabela de Resumo --- */
 .tabela-resumo {
-    margin: 20px auto;
-    border: 1px solid #7F3992;
-    min-width: 0; /* Reseta a largura mínima da tabela geral */
+    margin: 20px auto; border: 1px solid #7F3992; min-width: 0;
 }
+.tabela-resumo th, .tabela-resumo td { padding: 12px; }
+.tabela-resumo td:first-child { text-align: left; padding-left: 15px; font-weight: bold; }
+.tabela-resumo td:last-child { font-weight: bold; }
 
-.tabela-resumo th, .tabela-resumo td {
-    padding: 12px;
+/* --- NOVO: Estilo para o Total de Prêmios --- */
+.total-premios-container {
+    margin-top: 20px;
+    padding: 15px;
+    border-top: 1px solid #7F3992;
 }
-
-.tabela-resumo td:nth-child(1) { /* Coluna "Faixa de Prêmio" */
-    text-align: left;
-    padding-left: 15px;
+.total-premios-label {
+    display: block;
+    font-size: 1.1em;
+    color: #c7c7c7;
+}
+.total-premios-valor {
+    display: block;
+    font-size: 2em;
     font-weight: bold;
+    color: #FFD700;
+    margin-top: 5px;
 }
 
-/* --- Estilos para a animação de confetes --- */
-#confetti-container {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000;
-}
-.confetti {
-    position: absolute; width: 15px; height: 15px; background-color: #f00; opacity: 0;
-    animation: fall 4s linear forwards;
-}
-@keyframes fall {
-    from { transform: translateY(0vh) rotateZ(0deg); opacity: 1; }
-    to { transform: translateY(105vh) rotateZ(720deg); opacity: 0; }
-}
+#confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; }
+.confetti { position: absolute; width: 10px; height: 10px; opacity: 0; animation: fall 3s linear forwards; }
+@keyframes fall { from { transform: translateY(0vh) rotateZ(0deg); opacity: 1; } to { transform: translateY(105vh) rotateZ(720deg); opacity: 0; } }
+
 .win-message {
     position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
     background-color: rgba(44, 0, 79, 0.95); color: #FFD700; padding: 30px;
-    border-radius: 15px; border: 3px solid #7F3992; font-size: 1.8em;
-    font-weight: bold; text-align: center; z-index: 1001;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.7); animation: fadeInOut 6s ease-out forwards;
+    border-radius: 15px; border: 3px solid #7F3992; text-align: center; z-index: 1001;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.7); animation: fadeInOut 5s ease-out forwards;
 }
-@keyframes fadeInOut {
-    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-    20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-    80% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-}
+@keyframes fadeInOut { 0% { opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
 
-/* --- NOVO: Estilos para Mobile --- */
 @media (max-width: 700px) {
-    body {
-        padding: 5px;
-    }
-    .container {
-        padding: 15px;
-    }
-    h1 {
-        font-size: 1.5em;
-    }
-    .dezena-sorteada-input {
-        width: 40px;
-        height: 40px;
-        font-size: 1em;
-    }
-    .dezena-numero {
-        width: 28px;
-        height: 28px;
-        line-height: 28px;
-        font-size: 0.8em;
-    }
-    .win-message {
-        width: 90%;
-        font-size: 1.2em;
-    }
+    body { padding: 5px; }
+    .container { padding: 15px; }
+    h1 { font-size: 1.5em; }
+    .dezena-sorteada-input { width: 40px; height: 40px; font-size: 1em; }
+    .dezena-numero { width: 28px; height: 28px; line-height: 28px; font-size: 0.8em; }
+    .win-message { width: 90%; font-size: 1.2em; padding: 20px; }
+    .total-premios-valor { font-size: 1.8em; }
 }
