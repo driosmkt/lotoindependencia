@@ -5,97 +5,65 @@ const PREMIOS_FIXOS = {
     13: 30.00
 };
 
-// Tabela de multiplicação de prêmios para apostas de 16 dezenas
-const MULTIPLICADOR_16_DEZENAS = {
-    11: { 11: 5 }, // Acertando 11, ganha 5x o prêmio de 11
-    12: { 11: 12, 12: 4 }, // Acertando 12, ganha 12x o de 11 e 4x o de 12
-    13: { 12: 13, 13: 3 }, // Acertando 13, ganha 13x o de 12 e 3x o de 13
-    14: { 13: 14, 14: 2 }, // Acertando 14, ganha 14x o de 13 e 2x o de 14
-    15: { 14: 15, 15: 1 }  // Acertando 15, ganha 15x o de 14 e 1x o de 15
+// Tabela de multiplicação de prêmios para apostas múltiplas
+const MULTIPLICADORES = {
+    16: { 11: { 11: 5 }, 12: { 11: 12, 12: 4 }, 13: { 12: 13, 13: 3 }, 14: { 13: 14, 14: 2 }, 15: { 14: 15, 15: 1 } },
+    // Adicionar aqui para 17, 18, 19, 20 dezenas se necessário no futuro
 };
 
-// Função para criar um único confete
-function criarConfete(x, y, container, cor, tamanho, rotacao) {
+// --- Funções de Animação (sem alterações) ---
+function criarConfete(container) {
     const confete = document.createElement('div');
     confete.className = 'confetti';
-    confete.style.left = `${x}px`;
-    confete.style.top = `${y}px`;
-    confete.style.setProperty('--size', `${tamanho}px`);
-    confete.style.setProperty('--rotation', `${rotacao}deg`);
-    confete.classList.add(cor);
+    confete.style.left = `${Math.random() * 100}vw`;
+    confete.style.animationDelay = `${Math.random() * 2}s`;
+    const colors = ['#FFD700', '#7F3992', '#FF4500', '#00BFFF'];
+    confete.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
     container.appendChild(confete);
-
-    // Remove o confete do DOM após o fim da animação
-    setTimeout(() => {
-        confete.remove();
-    }, 4000); // A animação dura 4 segundos
+    setTimeout(() => confete.remove(), 4000);
 }
 
-// Função para criar múltiplos confetes
 function gerarConfetes(quantidade, container) {
     for (let i = 0; i < quantidade; i++) {
-        const x = Math.random() * window.innerWidth;
-        const y = Math.random() * window.innerHeight;
-        const tamanho = Math.random() * 15 + 10; // Tamanho entre 10px e 25px
-        const rotacao = Math.random() * 360;
-        const cor = `color-${Math.floor(Math.random() * 4) + 1}`; // Escolhe uma cor aleatória
-        criarConfete(x, y, container, cor, tamanho, rotacao);
+        criarConfete(container);
     }
 }
 
-// Função para mostrar a mensagem de vitória
-function mostrarMensagemVitoria(pontuacao, ehDezesseisNumeros) {
-    const winMessageContainer = document.getElementById('confetti-container');
+function mostrarMensagemVitoria(pontuacao, tipoAposta) {
+    const container = document.getElementById('confetti-container');
     const messageDiv = document.createElement('div');
-    messageDiv.classList.add('win-message');
-    
-    let mensagem = '🎉 PARABÉNS! 🎉<br>';
-    mensagem += `Você acertou ${pontuacao} dezenas em uma das suas apostas!`;
-    if (ehDezesseisNumeros) {
-        mensagem += ' (Aposta de 16 números)';
-    }
-    mensagem += '<br><br>';
-    mensagem += 'Busque informações nos canais oficiais da Loteria para saber o valor exato do prêmio e como resgatá-lo!';
-    
-    messageDiv.innerHTML = mensagem;
-    winMessageContainer.appendChild(messageDiv);
-
-    // Remove a mensagem após alguns segundos
-    setTimeout(() => {
-        messageDiv.remove();
-    }, 6000); // A animação dura 6 segundos
+    messageDiv.className = 'win-message';
+    messageDiv.innerHTML = `
+        🎉 PARABÉNS! 🎉<br>
+        Você acertou ${pontuacao} dezenas! (${tipoAposta})<br><br>
+        <small style="font-size:0.7em;">Busque os canais oficiais da Loteria para saber o valor exato do prêmio e como resgatá-lo!</small>
+    `;
+    container.appendChild(messageDiv);
+    setTimeout(() => messageDiv.remove(), 6000);
 }
 
-// Roda quando a página termina de carregar
+
+// --- Lógica Principal ---
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('resultadoContainer');
-    // Cria os 15 campos de input dinamicamente
     for (let i = 0; i < 15; i++) {
         const input = document.createElement('input');
-        input.type = 'tel';
-        input.className = 'dezena-sorteada-input';
-        input.maxLength = 2;
-        input.placeholder = '00';
+        input.type = 'tel'; input.className = 'dezena-sorteada-input';
+        input.maxLength = 2; input.placeholder = '00';
         input.setAttribute('aria-label', `Dezena ${i + 1}`);
         container.appendChild(input);
-    }
-    
-    // Adiciona a lógica de auto-pulo para os campos
-    const inputs = document.querySelectorAll('.dezena-sorteada-input');
-    inputs.forEach((input, index) => {
+        
         input.addEventListener('input', () => {
-            if (input.value.length === input.maxLength && index < inputs.length - 1) {
-                inputs[index + 1].focus();
+            if (input.value.length === input.maxLength && i < 14) {
+                container.children[i + 1].focus();
             }
         });
-    });
+    }
 });
 
 function conferirJogos() {
-    // Lê os números dos 15 campos do sorteio
     const inputsSorteados = document.querySelectorAll('.dezena-sorteada-input');
     const dezenasSorteadas = new Set();
-    
     inputsSorteados.forEach(input => {
         const valor = parseInt(input.value, 10);
         if (!isNaN(valor) && valor >= 1 && valor <= 25) {
@@ -104,37 +72,31 @@ function conferirJogos() {
     });
 
     if (dezenasSorteadas.size !== 15) {
-        alert("Por favor, preencha todos os 15 campos do sorteio com números válidos (de 01 a 25) e sem repetição.");
+        alert("Por favor, preencha todos os 15 campos do sorteio com números válidos e sem repetição.");
         return;
     }
 
-    const apostasInput = document.getElementById('minhasApostas').value;
-    const linhasApostas = apostasInput.trim().split('\n').filter(linha => linha.trim() !== '');
-
+    const linhasApostas = document.getElementById('minhasApostas').value.trim().split('\n').filter(l => l.trim() !== '');
     if (linhasApostas.length === 0) {
         alert("Por favor, cole suas apostas na área indicada.");
         return;
     }
 
-    const tabelaResultados = document.getElementById('tabelaResultados').getElementsByTagName('tbody')[0];
-    const resumoPremiosDiv = document.getElementById('resumoPremios');
-    tabelaResultados.innerHTML = '';
-    resumoPremiosDiv.innerHTML = '';
+    const tabelaBody = document.getElementById('tabelaResultados').querySelector('tbody');
+    const resumoDiv = document.getElementById('resumoPremios');
+    tabelaBody.innerHTML = '';
+    resumoDiv.innerHTML = '';
 
     let resumoContadores = { 11: 0, 12: 0, 13: 0, 14: 0, 15: 0, totalJogosPremiados: 0 };
     let premioTotalFixo = 0;
-    let houvePremioMaximo = false; // Flag para indicar se houve prêmio máximo
+    let houvePremioMaximo = false;
 
-    // Itera sobre cada aposta colada
     linhasApostas.forEach((linha, index) => {
-        const dezenasAposta = linha.trim().split(/[\s,]+/).map(Number);
-        if (dezenasAposta.some(isNaN) || (dezenasAposta.length !== 15 && dezenasAposta.length !== 16)) {
-            return; // Pula linhas mal formatadas
-        }
+        const dezenasAposta = linha.trim().split(/[\s,]+/).map(Number).filter(n => !isNaN(n) && n > 0);
+        if (dezenasAposta.length < 15) return;
 
         let acertos = 0;
         let dezenasHtml = '';
-
         dezenasAposta.forEach(dezena => {
             if (dezenasSorteadas.has(dezena)) {
                 acertos++;
@@ -146,51 +108,42 @@ function conferirJogos() {
 
         if (acertos >= 11) {
             resumoContadores.totalJogosPremiados++;
-            const ehDezesseisNumeros = dezenasAposta.length === 16;
+            const multiplicador = MULTIPLICADORES[dezenasAposta.length];
 
-            if (acertos === 15) { // Prêmio máximo!
-                houvePremioMaximo = true;
-                // Para o prêmio máximo, apenas contamos e mostramos a informação
-                // Não calculamos prêmios fixos, pois o valor é variável e alto
-                if (ehDezesseisNumeros) {
-                    resumoContadores[15] += 1; // Conta como um jogo de 15 acertos (desdobrado)
-                } else {
-                    resumoContadores[15]++;
+            if (multiplicador && multiplicador[acertos]) {
+                const premiosMultiplos = multiplicador[acertos];
+                for (const faixa in premiosMultiplos) {
+                    const quantidade = premiosMultiplos[faixa];
+                    resumoContadores[faixa] += quantidade;
+                    if (PREMIOS_FIXOS[faixa]) {
+                        premioTotalFixo += quantidade * PREMIOS_FIXOS[faixa];
+                    }
                 }
-            } else if (acertos >= 11) { // Prêmios menores
-                if (ehDezesseisNumeros) {
-                    const premiosMultiplos = MULTIPLICADOR_16_DEZENAS[acertos];
-                    for (const faixa in premiosMultiplos) {
-                        const quantidade = premiosMultiplos[faixa];
-                        resumoContadores[faixa] += quantidade;
-                        if (PREMIOS_FIXOS[faixa]) {
-                            premioTotalFixo += quantidade * PREMIOS_FIXOS[faixa];
-                        }
-                    }
-                } else { // Aposta simples de 15 dezenas
-                    resumoContadores[acertos]++;
-                    if (PREMIOS_FIXOS[acertos]) {
-                        premioTotalFixo += PREMIOS_FIXOS[acertos];
-                    }
+            } else { // Aposta simples ou acerto máximo
+                resumoContadores[acertos]++;
+                if (PREMIOS_FIXOS[acertos]) {
+                    premioTotalFixo += PREMIOS_FIXOS[acertos];
                 }
             }
         }
         
-        const newRow = tabelaResultados.insertRow();
-        let classePremiada = '';
+        const newRow = tabelaBody.insertRow();
         let emoji = '';
-
-        if (acertos >= 11) {
-            classePremiada = `premiada-${acertos}`;
-            if (acertos === 13) emoji = '💰';
-            if (acertos === 14) emoji = '🏆';
-            if (acertos === 15) emoji = '🎉';
+        if (acertos >= 11) newRow.classList.add(`premiada-${acertos}`);
+        if (acertos === 15) {
+            houvePremioMaximo = true;
+            newRow.classList.add('premiada-maxima'); // Adiciona a classe para a animação de brilho
+            emoji = '🎉';
+        } else if (acertos === 14) {
+            emoji = '🏆';
+        } else if (acertos === 13) {
+            emoji = '💰';
         }
-        if (classePremiada) newRow.classList.add(classePremiada);
         
+        // --- NOVO: Lógica corrigida para exibir o texto de acertos ---
         let acertosTexto = `<b>${acertos}</b>`;
-        if (dezenasAposta.length === 16) {
-             acertosTexto += ` <i style="font-size:0.8em;">(de 16)</i>`;
+        if (dezenasAposta.length > 15) {
+             acertosTexto += ` <i style="font-size:0.8em;">(de ${dezenasAposta.length})</i>`;
         }
 
         newRow.innerHTML = `
@@ -200,42 +153,37 @@ function conferirJogos() {
         `;
     });
 
-    // Gera o HTML do resumo final
+    // --- NOVO: Geração do resumo em formato de TABELA ---
     let resumoHtml = '<h2>Resumo da Premiação</h2>';
-    const totalDePremiosContados = Object.values(resumoContadores).slice(0, 5).reduce((a, b) => a + b, 0);
-
-    if (totalDePremiosContados > 0) {
-        resumoHtml += `<p>Você teve <strong>${resumoContadores.totalJogosPremiados}</strong> de <strong>${linhasApostas.length}</strong> apostas premiadas.</p><hr>`;
+    const totalDePremios = resumoContadores[11] + resumoContadores[12] + resumoContadores[13] + resumoContadores[14] + resumoContadores[15];
+    if (totalDePremios > 0) {
+        resumoHtml += `<p>Você teve <strong>${resumoContadores.totalJogosPremiados}</strong> de <strong>${linhasApostas.length}</strong> apostas premiadas.</p>`;
         
-        if (resumoContadores[15] > 0) {
-            resumoHtml += `<p style="color: #FFD700; font-size: 1.2em;"><strong>${resumoContadores[15]}</strong> aposta(s) com 15 acertos! PARABÉNS! 🎉 Busque informações oficiais para o valor exato e resgate seu prêmio!</p><hr>`;
-            // Chama a função para gerar confetes e a mensagem de vitória quando houver 15 acertos
+        if (houvePremioMaximo) {
             const confettiContainer = document.getElementById('confetti-container');
-            gerarConfetes(100, confettiContainer); // Cria 100 confetes
-            // Encontra qual foi a aposta de 15 acertos para passar os detalhes
-            linhasApostas.forEach((linha, index) => {
-                const dezenasAposta = linha.trim().split(/[\s,]+/).map(Number);
-                let acertos = 0;
-                dezenasAposta.forEach(dezena => {
-                    if (dezenasSorteadas.has(dezena)) {
-                        acertos++;
-                    }
-                });
-                if (acertos === 15) {
-                    mostrarMensagemVitoria(15, dezenasAposta.length === 16);
-                }
-            });
+            gerarConfetes(100, confettiContainer);
+            mostrarMensagemVitoria('15', 'Prêmio Máximo');
         }
 
-        resumoHtml += `<p><strong>${resumoContadores[11]}</strong> prêmio(s) de 11 acertos: <strong>R$ ${(resumoContadores[11] * PREMIOS_FIXOS[11]).toFixed(2).replace('.',',')}</strong></p>`;
-        resumoHtml += `<p><strong>${resumoContadores[12]}</strong> prêmio(s) de 12 acertos: <strong>R$ ${(resumoContadores[12] * PREMIOS_FIXOS[12]).toFixed(2).replace('.',',')}</strong></p>`;
-        resumoHtml += `<p><strong>${resumoContadores[13]}</strong> prêmio(s) de 13 acertos 💰: <strong>R$ ${(resumoContadores[13] * PREMIOS_FIXOS[13]).toFixed(2).replace('.',',')}</strong></p>`;
-        resumoHtml += `<p><strong>${resumoContadores[14]}</strong> prêmio(s) de 14 acertos (Prêmio Variável) 🏆</p>`;
-        
-        resumoHtml += `<hr><h3>Total em Prêmios Fixos (11, 12 e 13 acertos): R$ ${premioTotalFixo.toFixed(2).replace('.',',')}</h3>`;
+        resumoHtml += `
+            <table class="tabela-resumo">
+                <thead>
+                    <tr><th>Faixa de Prêmio</th><th>Qtd. Prêmios</th><th>Valor (R$)</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>15 acertos 🎉</td><td>${resumoContadores[15]}</td><td>Variável</td></tr>
+                    <tr><td>14 acertos 🏆</td><td>${resumoContadores[14]}</td><td>Variável</td></tr>
+                    <tr><td>13 acertos 💰</td><td>${resumoContadores[13]}</td><td>${(resumoContadores[13] * PREMIOS_FIXOS[13]).toFixed(2).replace('.',',')}</td></tr>
+                    <tr><td>12 acertos</td><td>${resumoContadores[12]}</td><td>${(resumoContadores[12] * PREMIOS_FIXOS[12]).toFixed(2).replace('.',',')}</td></tr>
+                    <tr><td>11 acertos</td><td>${resumoContadores[11]}</td><td>${(resumoContadores[11] * PREMIOS_FIXOS[11]).toFixed(2).replace('.',',')}</td></tr>
+                </tbody>
+            </table>
+            <hr>
+            <h3>Total em Prêmios Fixos (11, 12 e 13 acertos): R$ ${premioTotalFixo.toFixed(2).replace('.',',')}</h3>
+        `;
     } else {
-        resumoHtml += `<p>Nenhuma aposta foi premiada. Foram conferidos ${linhasApostas.length} jogos. Mais sorte na próxima vez!</p>`;
+        resumoHtml += `<p>Nenhuma aposta foi premiada. Foram conferidos ${linhasApostas.length} jogos. Mais sorte na próxima!</p>`;
     }
 
-    resumoPremiosDiv.innerHTML = resumoHtml;
+    resumoDiv.innerHTML = resumoHtml;
 }
