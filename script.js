@@ -1,10 +1,8 @@
-// --- Valores e Multiplicadores (sem alterações) ---
 const PREMIOS_FIXOS = { 11: 6.00, 12: 12.00, 13: 30.00 };
 const MULTIPLICADORES = {
     16: { 11: { 11: 5 }, 12: { 11: 12, 12: 4 }, 13: { 12: 13, 13: 3 }, 14: { 13: 14, 14: 2 }, 15: { 14: 15, 15: 1 } }
 };
 
-// --- Funções de Animação (com melhorias) ---
 function criarConfete(container) {
     const confete = document.createElement('div');
     confete.className = 'confetti';
@@ -15,7 +13,12 @@ function criarConfete(container) {
     container.appendChild(confete);
     setTimeout(() => confete.remove(), 3000);
 }
-function gerarConfetes(quantidade, container) { for (let i = 0; i < quantidade; i++) { criarConfete(container); } }
+
+function gerarConfetes(quantidade, container) {
+    for (let i = 0; i < quantidade; i++) {
+        criarConfete(container);
+    }
+}
 
 function mostrarMensagemVitoria(titulo, subtitulo) {
     const container = document.getElementById('confetti-container');
@@ -26,10 +29,12 @@ function mostrarMensagemVitoria(titulo, subtitulo) {
         <p style="font-size: 0.8em; margin: 10px 0 0 0;">${subtitulo}</p>
     `;
     container.appendChild(messageDiv);
-    setTimeout(() => messageDiv.remove(), 5000);
+    // --- NOVO: Tempo aumentado para 8 segundos ---
+    setTimeout(() => {
+        if (messageDiv) messageDiv.remove();
+    }, 8000);
 }
 
-// --- Lógica Principal (com as principais correções) ---
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('resultadoContainer');
     for (let i = 0; i < 15; i++) {
@@ -81,10 +86,9 @@ function conferirJogos() {
         const newRow = tabelaBody.insertRow();
         if (acertos >= 11) newRow.classList.add(`premiada-${acertos}`);
         
-        // --- LÓGICA CORRIGIDA: Texto de acertos ---
         let acertosTexto = `<b>${acertos}</b>`;
         if (dezenasAposta.length > 15) {
-            acertosTexto += ` <i style="font-size:0.8em;opacity:0.8;">(de ${dezenasAposta.length})</i>`;
+             acertosTexto += ` <i style="font-size:0.8em;opacity:0.8;">(de ${dezenasAposta.length})</i>`;
         }
 
         let emoji = acertos === 15 ? '🎉' : acertos === 14 ? '🏆' : acertos === 13 ? '💰' : '';
@@ -103,6 +107,7 @@ function gerarResumo(resumo, totalApostas) {
         resumoHtml += `<p>Você teve <strong>${resumo.totalJogosPremiados}</strong> de <strong>${totalApostas}</strong> apostas premiadas.</p>`;
 
         const confettiContainer = document.getElementById('confetti-container');
+        // A lógica if/else if garante que apenas o aviso do maior prêmio seja exibido
         if (resumo.maiorAcerto === 15) {
             gerarConfetes(150, confettiContainer);
             mostrarMensagemVitoria('PRÊMIO MÁXIMO!', 'Parabéns! Verifique os canais oficiais para o resgate.');
@@ -130,4 +135,4 @@ function gerarResumo(resumo, totalApostas) {
         resumoHtml += `<p>Nenhuma aposta foi premiada. Foram conferidos ${totalApostas} jogos.</p>`;
     }
     resumoDiv.innerHTML = resumoHtml;
-}
+}```
