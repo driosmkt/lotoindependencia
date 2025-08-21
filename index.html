@@ -12,16 +12,10 @@
 
         <div class="input-section">
             <h2>Indique as 15 Dezenas Sorteados</h2>
-            <p>Preencha os campos abaixo. O cursor pulará para o próximo automaticamente.</p>
+            <p>Preencha os campos abaixo para conferir suas apostas.</p>
             <div id="resultadoContainer" class="resultado-container-inputs">
-                <!-- Campos gerados pelo JavaScript -->
+                <!-- Campos para as dezenas sorteadas serão gerados pelo JavaScript -->
             </div>
-        </div>
-
-        <div class="input-section">
-            <h2>Cole Suas Apostas Abaixo</h2>
-            <p>Cole uma aposta por linha, com as dezenas separadas por espaço ou vírgula.</p>
-            <textarea id="minhasApostas" rows="12" placeholder="Ex: 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15"></textarea>
         </div>
 
         <button onclick="conferirJogos()">Conferir Apostas</button>
@@ -31,6 +25,7 @@
         </div>
 
         <div class="tabela-resultados-wrapper">
+            <h2>Suas Apostas Fixas (Estratégia 2025)</h2>
             <table id="tabelaResultados">
                 <thead>
                     <tr>
@@ -40,19 +35,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- As linhas de resultado das apostas aparecerão aqui -->
+                    <!-- Suas 37 apostas fixas serão carregadas aqui pelo JavaScript -->
                 </tbody>
             </table>
         </div>
         
-        <!-- NOVO: Aviso de isenção de responsabilidade -->
         <div class="disclaimer-box">
             <p>⚠️ <strong>Aviso Importante:</strong> Esta é uma ferramenta de auxílio. A conferência oficial e a responsabilidade final são do apostador. Sempre verifique o resultado nos canais oficiais da Caixa Econômica Federal antes de descartar seu bilhete.</p>
         </div>
     </div>
 
     <div id="confetti-container"></div>
-
     <script src="script.js"></script>
 </body>
 </html>
