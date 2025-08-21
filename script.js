@@ -49,7 +49,6 @@ function mostrarMensagemVitoria(titulo, subtitulo) {
 
 // --- Lógica Principal que Roda ao Carregar a Página ---
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Cria os campos para digitar o resultado
     const containerResultado = document.getElementById('resultadoContainer');
     for (let i = 0; i < 15; i++) {
         const input = document.createElement('input');
@@ -61,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2. Carrega as suas apostas fixas na tabela
     const tabelaBody = document.getElementById('tabelaResultados').querySelector('tbody');
     MINHAS_APOSTAS.forEach((apostaStr, index) => {
         const newRow = tabelaBody.insertRow();
@@ -116,11 +114,9 @@ function conferirJogos() {
             }
         }
         
-        let acertosTexto = `<b>${acertos}</b>`;
-        if (dezenasAposta.length > 15) {
-             acertosTexto += ` <i style="font-size:0.8em;opacity:0.8;">(de ${dezenasAposta.length})</i>`;
-        }
-        let emoji = acertos === 15 ? '🎉' : acertos === 14 ? '🏆' : acertos === 13 ? '💰' : '';
+        // --- LÓGICA CORRIGIDA: Exibição do número de acertos ---
+        const acertosTexto = `<b>${acertos}</b>`;
+        const emoji = acertos === 15 ? '🎉' : acertos === 14 ? '🏆' : acertos === 13 ? '💰' : '';
         linha.cells[2].innerHTML = `${acertosTexto} ${emoji}`;
     });
 
@@ -129,7 +125,7 @@ function conferirJogos() {
 
 function gerarResumo(resumo, totalApostas) {
     const resumoDiv = document.getElementById('resumoPremios');
-    resumoDiv.innerHTML = ''; // Limpa o resumo anterior
+    resumoDiv.innerHTML = '';
     let resumoHtml = '<h2>Resumo da Premiação</h2>';
     const totalPremios = resumo[11] + resumo[12] + resumo[13] + resumo[14] + resumo[15];
 
