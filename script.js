@@ -47,7 +47,7 @@ function mostrarMensagemVitoria(titulo, subtitulo) {
     setTimeout(() => { if (messageDiv) messageDiv.remove(); }, 8000);
 }
 
-// --- Lógica Principal ---
+// --- Lógica Principal que Roda ao Carregar a Página ---
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Cria os campos para digitar o resultado
     const containerResultado = document.getElementById('resultadoContainer');
@@ -70,56 +70,4 @@ document.addEventListener('DOMContentLoaded', () => {
         
         newRow.innerHTML = `
             <td>${index + 1}</td>
-            <td style="text-align: left; padding-left: 10px;">${dezenasHtml}</td>
-            <td>-</td>
-        `;
-    });
-});
-
-function conferirJogos() {
-    const dezenasSorteadas = new Set(Array.from(document.querySelectorAll('.dezena-sorteada-input')).map(i => parseInt(i.value, 10)).filter(v => !isNaN(v)));
-    if (dezenasSorteadas.size !== 15) { alert("Preencha as 15 dezenas sorteadas sem repetição."); return; }
-
-    const todasAsLinhas = document.querySelectorAll('#tabelaResultados tbody tr');
-    let resumo = { 11: 0, 12: 0, 13: 0, 14: 0, 15: 0, totalJogosPremiados: 0, premioTotalFixo: 0, maiorAcerto: 0 };
-
-    todasAsLinhas.forEach((linha) => {
-        const spansDasDezenas = linha.querySelectorAll('.dezena-numero');
-        const dezenasAposta = Array.from(spansDasDezenas).map(span => parseInt(span.textContent, 10));
-        
-        let acertos = 0;
-        spansDasDezenas.forEach(span => {
-            const dezena = parseInt(span.textContent, 10);
-            if (dezenasSorteadas.has(dezena)) {
-                span.classList.add('dezena-acertada');
-                acertos++;
-            } else {
-                span.classList.remove('dezena-acertada');
-            }
-        });
-
-        if (acertos > resumo.maiorAcerto) resumo.maiorAcerto = acertos;
-
-        linha.classList.remove('premiada-11', 'premiada-12', 'premiada-13', 'premiada-14', 'premiada-15');
-        if (acertos >= 11) {
-            linha.classList.add(`premiada-${acertos}`);
-            resumo.totalJogosPremiados++;
-            const multiplicador = MULTIPLICADORES[dezenasAposta.length];
-            if (multiplicador && multiplicador[acertos]) {
-                Object.entries(multiplicador[acertos]).forEach(([faixa, qtd]) => {
-                    resumo[faixa] += qtd;
-                    if (PREMIOS_FIXOS[faixa]) resumo.premioTotalFixo += qtd * PREMIOS_FIXOS[faixa];
-                });
-            } else {
-                resumo[acertos]++;
-                if (PREMIOS_FIXOS[acertos]) resumo.premioTotalFixo += PREMIOS_FIXOS[acertos];
-            }
-        }
-        
-        let acertosTexto = `<b>${acertos}</b>`;
-        if (dezenasAposta.length > 15) {
-             acertosTexto += ` <i style="font-size:0.8em;opacity:0.8;">(de ${dezenasAposta.length})</i>`;
-        }
-        let emoji = acertos === 15 ? '🎉' : acertos === 14 ? '🏆' : acertos === 13 ? '💰' : '';
-        linha.cells[2].innerHTML = `${acertosTexto} ${emoji}`;
-  
+            <td styl
