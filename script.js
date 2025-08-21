@@ -32,7 +32,10 @@ const MINHAS_APOSTAS = [
     "02 03 04 05 09 10 11 12 13 15 17 18 19 20 24", "01 04 05 06 08 09 11 12 14 17 18 21 22 23 25",
     "01 02 03 05 06 07 10 11 12 16 18 19 20 21 25", "02 03 04 05 06 10 11 12 13 15 17 20 22 23 25",
     "04 05 06 07 08 10 11 12 13 15 16 18 20 21 25", "02 04 07 08 10 11 12 14 15 18 21 22 23 24 25",
-    "02 03 04 05 08 10 11 12 16 17 18 20 21 24 25", "01 02 04 06 08 09 11 12 14 15 18 19 20 21 22"
+    "02 03 04 05 08 10 11 12 16 17 18 20 21 24 25", "01 02 04 06 08 09 11 12 14 15 18 19 20 21 22",
+    "02 03 04 05 06 10 11 12 13 16 17 18 20 21 25", "01 02 05 06 09 10 11 12 13 17 18 19 20 21 24",
+    "02 03 04 08 09 10 11 12 14 15 17 18 20 21 23", "01 02 04 05 06 08 10 11 12 18 19 21 23 24 25",
+    "01 02 03 04 07 11 12 13 14 18 19 20 21 22 25", "01 03 05 06 07 08 11 12 13 17 18 20 21 22 25"
 ];
 
 const PREMIOS_FIXOS = { 11: 6.00, 12: 12.00, 13: 30.00 };
@@ -77,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabelaBody = document.getElementById('tabelaResultados').querySelector('tbody');
     MINHAS_APOSTAS.forEach((apostaStr, index) => {
         const newRow = tabelaBody.insertRow();
-        const dezenas = apostaStr.split(' ').map(d => d.trim().padStart(2, '0')).filter(d => d && d !== '00');
+        const dezenas = apostaStr.split(/[\s,]+/).map(d => d.trim().padStart(2, '0')).filter(d => d && d !== '00');
         const dezenasHtml = dezenas.map(dezena => `<span class="dezena-numero">${dezena}</span>`).join('');
         
         newRow.innerHTML = `
