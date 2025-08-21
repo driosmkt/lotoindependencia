@@ -70,4 +70,98 @@ document.addEventListener('DOMContentLoaded', () => {
         
         newRow.innerHTML = `
             <td>${index + 1}</td>
-            <td styl
+            <td style="text-align: left; padding-left: 10px;">${dezenasHtml}</td>
+            <td>-</td>
+        `;
+    });
+});
+
+function conferirJogos() {
+    const dezenasSorteadas = new Set(Array.from(document.querySelectorAll('.dezena-sorteada-input')).map(i => parseInt(i.value, 10)).filter(v => !isNaN(v)));
+    if (dezenasSorteadas.size !== 15) { alert("Preencha as 15 dezenas sorteadas sem repetição."); return; }
+
+    const todasAsLinhas = document.querySelectorAll('#tabelaResultados tbody tr');
+    let resumo = { 11: 0, 12: 0, 13: 0, 14: 0, 15: 0, totalJogosPremiados: 0, premioTotalFixo: 0, maiorAcerto: 0 };
+
+    todasAsLinhas.forEach((linha) => {
+        const spansDasDezenas = linha.querySelectorAll('.dezena-numero');
+        const dezenasAposta = Array.from(spansDasDezenas).map(span => parseInt(span.textContent, 10));
+        
+        let acertos = 0;
+        spansDasDezenas.forEach(span => {
+            const dezena = parseInt(span.textContent, 10);
+            if (dezenasSorteadas.has(dezena)) {
+                span.classList.add('dezena-acertada');
+                acertos++;
+            } else {
+                span.classList.remove('dezena-acertada');
+            }
+        });
+
+        if (acertos > resumo.maiorAcerto) resumo.maiorAcerto = acertos;
+
+        linha.classList.remove('premiada-11', 'premiada-12', 'premiada-13', 'premiada-14', 'premiada-15');
+        if (acertos >= 11) {
+            linha.classList.add(`premiada-${acertos}`);
+            resumo.totalJogosPremiados++;
+            const multiplicador = MULTIPLICADORES[dezenasAposta.length];
+            if (multiplicador && multiplicador[acertos]) {
+                Object.entries(multiplicador[acertos]).forEach(([faixa, qtd]) => {
+                    resumo[faixa] += qtd;
+                    if (PREMIOS_FIXOS[faixa]) resumo.premioTotalFixo += qtd * PREMIOS_FIXOS[faixa];
+                });
+            } else {
+                resumo[acertos]++;
+                if (PREMIOS_FIXOS[acertos]) resumo.premioTotalFixo += PREMIOS_FIXOS[acertos];
+            }
+        }
+        
+        let acertosTexto = `<b>${acertos}</b>`;
+        if (dezenasAposta.length > 15) {
+             acertosTexto += ` <i style="font-size:0.8em;opacity:0.8;">(de ${dezenasAposta.length})</i>`;
+        }
+        let emoji = acertos === 15 ? '🎉' : acertos === 14 ? '🏆' : acertos === 13 ? '💰' : '';
+        linha.cells[2].innerHTML = `${acertosTexto} ${emoji}`;
+    });
+
+    gerarResumo(resumo, todasAsLinhas.length);
+}
+
+function gerarResumo(resumo, totalApostas) {
+    const resumoDiv = document.getElementById('resumoPremios');
+    resumoDiv.innerHTML = ''; // Limpa o resumo anterior
+    let resumoHtml = '<h2>Resumo da Premiação</h2>';
+    const totalPremios = resumo[11] + resumo[12] + resumo[13] + resumo[14] + resumo[15];
+
+    if (totalPremios > 0) {
+        resumoHtml += `<p>Você teve <strong>${resumo.totalJogosPremiados}</strong> de <strong>${totalApostas}</strong> apostas premiadas.</p>`;
+
+        const confettiContainer = document.getElementById('confetti-container');
+        if (resumo.maiorAcerto === 15) {
+            gerarConfetes(150, confettiContainer);
+            mostrarMensagemVitoria('PRÊMIO MÁXIMO!', 'Parabéns! Verifique os canais oficiais para o resgate.');
+        } else if (resumo.maiorAcerto === 14) {
+            gerarConfetes(70, confettiContainer);
+            mostrarMensagemVitoria('EXCELENTE PRÊMIO!', 'Você acertou 14 dezenas! Quase lá!');
+        }
+
+        resumoHtml += `
+            <table class="tabela-resumo">
+                <tbody>
+                    <tr><td>15 acertos 🎉</td><td>${resumo[15]}</td><td>Variável</td></tr>
+                    <tr><td>14 acertos 🏆</td><td>${resumo[14]}</td><td>Variável</td></tr>
+                    <tr><td>13 acertos 💰</td><td>${resumo[13]}</td><td>${(resumo[13] * PREMIOS_FIXOS[13]).toFixed(2).replace('.',',')}</td></tr>
+                    <tr><td>12 acertos</td><td>${resumo[12]}</td><td>${(resumo[12] * PREMIOS_FIXOS[12]).toFixed(2).replace('.',',')}</td></tr>
+                    <tr><td>11 acertos</td><td>${resumo[11]}</td><td>${(resumo[11] * PREMIOS_FIXOS[11]).toFixed(2).replace('.',',')}</td></tr>
+                </tbody>
+            </table>
+            <div class="total-premios-container">
+                <span class="total-premios-label">Total em Prêmios Fixos (11, 12 e 13 acertos):</span>
+                <span class="total-premios-valor">R$ ${resumo.premioTotalFixo.toFixed(2).replace('.',',')}</span>
+            </div>
+        `;
+    } else {
+        resumoHtml += `<p>Nenhuma aposta foi premiada. Foram conferidos ${totalApostas} jogos.</p>`;
+    }
+    resumoDiv.innerHTML = resumoHtml;
+}
